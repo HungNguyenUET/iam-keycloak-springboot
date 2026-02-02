@@ -5,6 +5,8 @@ services:
   postgres:
     image: postgres:15
     container_name: keycloak_db
+    port:
+      - "5432:5432" 
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:

@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  # Dịch vụ Database PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: keycloak_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password123
+    networks:
+      - keycloak_net
+
+  # Dịch vụ Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0 # Dùng bản mới nhất
+    container_name: keycloak_app
+    command: start-dev # Chạy chế độ Dev (không bắt buộc HTTPS)
+    environment:
+      # Cấu hình kết nối DB
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password123
+
+      # Tạo tài khoản Admin mặc định để đăng nhập
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8010:8080"
+    depends_on:
+      - postgres
+    networks:
+      - keycloak_net
+
+volumes:
+  postgres_data:
+
+networks:
+  keycloak_net:
+    driver: bridge
